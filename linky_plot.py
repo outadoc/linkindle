@@ -4,7 +4,7 @@
 import linky
 import os
 import numpy as np
-from datetime import datetime
+import datetime
 from dateutil.relativedelta import relativedelta
 from matplotlib import pyplot as plot
 import matplotlib as mpl
@@ -35,7 +35,7 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
     x_values = []
 
     start_date_queried_str = res['graphe']['periode']['dateDebut']
-    start_date_queried = datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
+    start_date_queried = datetime.datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
 
     kwargs = {}
     kwargs[time_delta_unit] = res['graphe']['decalage'] * inc
@@ -107,16 +107,27 @@ def generate_graph_years(res):
     plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
     plot.savefig(OUTPUT_DIR + "/linky_years.png")
 
+def dtostr(date):
+    return date.strftime("%d/%m/%Y")
+
 try:
+    today = datetime.date.today()
+
     print("logging in as " + username + "...")
     token = linky.login(username, password)
     print("logged in successfully!")
 
     print("retreiving data...")
-    res_month = linky.get_data_per_month(token, '01/05/2016', '30/10/2016')
     res_year = linky.get_data_per_year(token)
-    res_day = linky.get_data_per_day(token, '29/09/2016', '29/10/2016')
-    res_hour = linky.get_data_per_hour(token, '29/10/2016', '30/10/2016')
+
+    # 6 months ago - today
+    res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
+
+    # One month ago - today
+    res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today))
+
+    # Yesterday - today
+    res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
     print("got data!")
 
     print("generating graphs...")
