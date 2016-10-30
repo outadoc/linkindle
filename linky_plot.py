@@ -11,27 +11,39 @@ from matplotlib import pyplot as plot
 username = os.environ['LINKY_USERNAME']
 password = os.environ['LINKY_PASSWORD']
 
-try:
-    print("logging in as " + username + "...")
-    token = linky.login(username, password)
-    print("logged in successfully")
-    res = linky.get_data_month(token, '01/05/2016', '30/10/2016')
+output_dir = 'out'
 
+def generate_y_axis(res):
     y_values = []
+
+    for datapoint in res['graphe']['data']:
+        ordre = datapoint['ordre']
+        value = datapoint['valeur']
+        y_values.insert(ordre, value)
+
+    return y_values
+
+def generate_x_axis(res, time_delta_unit, time_format):
     x_values = []
 
     start_date_queried_str = res['graphe']['periode']['dateDebut']
     start_date_queried = datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
-    start_date = start_date_queried - relativedelta(months=res['graphe']['decalage'])
 
-    print(start_date)
+    kwargs = {}
+    kwargs[time_delta_unit] = res['graphe']['decalage']
+    start_date = start_date_queried - relativedelta(**kwargs)
 
     for datapoint in res['graphe']['data']:
-        y_values.insert(datapoint['ordre'], datapoint['valeur'])
-        x_values.insert(datapoint['ordre'], (start_date + relativedelta(months=datapoint['ordre']-1)).strftime("%b %Y"))
+        ordre = datapoint['ordre']
+        kwargs = {}
+        kwargs[time_delta_unit] = ordre-1
+        x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
-    print(y_values)
-    print(x_values)
+    return x_values
+
+def generate_graph_from_data(res, time_delta_unit, time_format):
+    y_values = generate_y_axis(res)
+    x_values = generate_x_axis(res, time_delta_unit, time_format)
 
     width = .35
     graph = plot.figure()
@@ -41,6 +53,15 @@ try:
     plot.xticks(ind + width / 2, x_values)
 
     graph.autofmt_xdate()
-    plot.savefig("figure.pdf")
+    plot.savefig(output_dir + "/linky_" + time_delta_unit + ".png")
+
+try:
+    print("logging in as " + username + "...")
+    token = linky.login(username, password)
+    print("logged in successfully")
+
+    res = linky.get_data_month(token, '01/05/2016', '30/10/2016')
+    generate_graph_from_data(res, 'months', "%b %Y")
+
 except linky.LinkyLoginException as e:
     print(e)
