@@ -7,6 +7,7 @@ import numpy as np
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from matplotlib import pyplot as plot
+import matplotlib as mpl
 
 username = os.environ['LINKY_USERNAME']
 password = os.environ['LINKY_PASSWORD']
@@ -52,8 +53,11 @@ def generate_graph_from_data(res, time_delta_unit, time_format, ylegend):
 
     width = .55
 
-    fig, ax = plot.subplots()
+    fig = plot.figure(num=None, figsize=(4.8, 3.6), dpi=166.6666, facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
+    ax = fig.add_subplot(111)
+
+    mpl.rcParams.update({'font.size': 10})
 
     plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
