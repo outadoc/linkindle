@@ -32,16 +32,16 @@ def login(username, password):
 
     return session_cookie
 
-def get_data_hour(token, start_date, end_date):
+def get_data_per_hour(token, start_date, end_date):
     return _get_data(token, 'urlCdcHeure', start_date, end_date)
 
-def get_data_day(token, start_date, end_date):
+def get_data_per_day(token, start_date, end_date):
     return _get_data(token, 'urlCdcJour', start_date, end_date)
 
-def get_data_month(token, start_date, end_date):
+def get_data_per_month(token, start_date, end_date):
     return _get_data(token, 'urlCdcMois', start_date, end_date)
 
-def get_data_year(token):
+def get_data_per_year(token):
     return _get_data(token, 'urlCdcAn')
 
 def _get_data(token, resource_id, start_date = None, end_date = None):

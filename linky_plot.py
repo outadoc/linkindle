@@ -43,31 +43,57 @@ def generate_x_axis(res, time_delta_unit, time_format):
 
     return x_values
 
-def generate_graph_from_data(res, time_delta_unit, time_format):
+def generate_graph_from_data(res, time_delta_unit, time_format, rotate_xlabels = False):
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format)
-    
+
+    print(y_values)
+    print(x_values)
+
     width = .55
 
-    graph = plot.figure()
-    ind = np.arange(len(y_values))
+    fig, ax = plot.subplots()
+    ind = np.arange(len(x_values))
 
     plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
+    plot.ylabel("kWh")
+    plot.grid(True)
+    plot.xlim([-width, len(x_values) + width])
+
+    if rotate_xlabels:
+        fig.autofmt_xdate()
 
     return plot
 
-def generate_graph_months():
+def generate_graph_days(res):
+    plot = generate_graph_from_data(res, 'days', "%d %b", True)
+    plot.savefig(output_dir + "/linky_days.png")
+
+def generate_graph_months(res):
     plot = generate_graph_from_data(res, 'months', "%b")
     plot.savefig(output_dir + "/linky_months.png")
+
+def generate_graph_years(res):
+    plot = generate_graph_from_data(res, 'years', "%Y")
+    plot.savefig(output_dir + "/linky_years.png")
 
 try:
     print("logging in as " + username + "...")
     token = linky.login(username, password)
-    print("logged in successfully")
+    print("logged in successfully!")
 
-    res = linky.get_data_month(token, '01/05/2016', '30/10/2016')
-    generate_graph_months()
+    print("retreiving data...")
+    res_month = linky.get_data_per_month(token, '01/05/2016', '30/10/2016')
+    res_year = linky.get_data_per_year(token)
+    res_day = linky.get_data_per_day(token, '29/09/2016', '29/10/2016')
+    print("got data!")
+
+    print("generating graphs...")
+    generate_graph_months(res_month)
+    generate_graph_years(res_year)
+    generate_graph_days(res_day)
+    print("successfully generated graphs!")
 
 except linky.LinkyLoginException as e:
     print(e)
