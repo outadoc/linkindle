@@ -5,7 +5,7 @@ I wanted a way to display my energetic consumption on my wall, like on a weather
 
 I therefore started making a graph generator that would take the data reported by my Linky electricity meter. The data is sent periodically to Enedis, which in turn offers a webpage which displays it - and makes it available through a private JSON API.
 
-![Linky](https://github.com/outadoc/linkindle/raw/master/assets/linky.png)
+![Linky](https://github.com/outadoc/linkindle/raw/master/assets/linky.jpg)
 
 A few hours later, I had a Python script that could log into the Enedis website and download the meter's data. It can then be processed by the Python script, to generate PNG files of graphs that I will then display on the Kindle.
 
