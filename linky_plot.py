@@ -45,11 +45,12 @@ def generate_graph_from_data(res, time_delta_unit, time_format):
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format)
 
-    width = .35
+    width = .55
+
     graph = plot.figure()
     ind = np.arange(len(y_values))
 
-    plot.bar(ind, y_values, width=width)
+    plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
 
     graph.autofmt_xdate()
