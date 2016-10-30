@@ -11,6 +11,9 @@ API_BASE_URI = 'https://espace-client-particuliers.erdf.fr/group/espace-particul
 API_ENDPOINT_LOGIN = '/auth/UI/Login'
 API_ENDPOINT_DATA = '/jeconsultetelechargemesdonneesdeconsommation'
 
+DONNEE_NON_DEMANDEE = -1
+DONNEE_NON_DISPONIBLE = -2
+
 class LinkyLoginException(Exception):
     pass
 
@@ -42,10 +45,12 @@ def get_data_year(token):
     return _get_data(token, 'urlCdcAn')
 
 def _get_data(token, resource_id, start_date = None, end_date = None):
+    prefix = '_lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet_';
+
     cookies = {'iPlanetDirectoryPro': token}
     payload = {
-        '_lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet_dateDebut': start_date,
-        '_lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet_dateFin': end_date
+        prefix + 'dateDebut': start_date,
+        prefix + 'dateFin': end_date
     }
     params = {
         'p_p_id': 'lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet',
