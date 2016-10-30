@@ -11,13 +11,15 @@ API_BASE_URI = 'https://espace-client-particuliers.erdf.fr/group/espace-particul
 API_ENDPOINT_LOGIN = '/auth/UI/Login'
 API_ENDPOINT_DATA = '/jeconsultetelechargemesdonneesdeconsommation'
 
-DONNEE_NON_DEMANDEE = -1
-DONNEE_NON_DISPONIBLE = -2
+DATA_NOT_REQUESTED = -1
+DATA_NOT_AVAILABLE = -2
 
 class LinkyLoginException(Exception):
     pass
 
 def login(username, password):
+    """Logs the user into the Linky API.
+    """
     payload = {'IDToken1': username,
                 'IDToken2': password,
                 'SunQueryParamsString': base64.b64encode(b'realm=particuliers'),
@@ -33,20 +35,29 @@ def login(username, password):
     return session_cookie
 
 def get_data_per_hour(token, start_date, end_date):
+    """Retreives hourly energy consumption data.
+    """
     return _get_data(token, 'urlCdcHeure', start_date, end_date)
 
 def get_data_per_day(token, start_date, end_date):
+    """Retreives daily energy consumption data.
+    """
     return _get_data(token, 'urlCdcJour', start_date, end_date)
 
 def get_data_per_month(token, start_date, end_date):
+    """Retreives monthly energy consumption data.
+    """
     return _get_data(token, 'urlCdcMois', start_date, end_date)
 
 def get_data_per_year(token):
+    """Retreives yearly energy consumption data.
+    """
     return _get_data(token, 'urlCdcAn')
 
 def _get_data(token, resource_id, start_date = None, end_date = None):
     prefix = '_lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet_';
 
+    # We send the session token so that the server knows who we are
     cookies = {'iPlanetDirectoryPro': token}
     payload = {
         prefix + 'dateDebut': start_date,

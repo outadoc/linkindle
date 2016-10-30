@@ -21,9 +21,12 @@ GRAPH_DPI = 167
 def generate_y_axis(res):
     y_values = []
 
+    # Extract data points from the source dictionary into a list
     for ordre, datapoint in enumerate(res['graphe']['data']):
         value = datapoint['valeur']
 
+        # Remove any invalid values
+        # (they're error codes on the API side, but useless here)
         if value < 0:
             value = 0
 
@@ -34,13 +37,16 @@ def generate_y_axis(res):
 def generate_x_axis(res, time_delta_unit, time_format, inc):
     x_values = []
 
+    # Extract start date and parse it
     start_date_queried_str = res['graphe']['periode']['dateDebut']
     start_date_queried = datetime.datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
 
+    # Calculate final start date using the "offset" attribute returned by the API
     kwargs = {}
     kwargs[time_delta_unit] = res['graphe']['decalage'] * inc
     start_date = start_date_queried - relativedelta(**kwargs)
 
+    # Generate X axis time labels for every data point
     for ordre, datapoint in enumerate(res['graphe']['data']):
         kwargs = {}
         kwargs[time_delta_unit] = ordre * inc
@@ -49,18 +55,40 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
     return x_values
 
 def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, inc = 1):
+    """Generates a graph from the given data.
+
+    Parameters
+    ----------
+    res : dictionary
+        The data to display in a graph.
+    title : str
+        The title of the graph.
+    time_delta_unit : str
+        The time unit that will be increased on the X axis.
+    time_format : str
+        The strftime format string for the X axis.
+    ylegend : str
+        The Y axis' legend.
+    inc : number
+        The amount by which the X axis will be increased with every step.
+        See time_delta_unit.
+    """
+
+    # Generate the values to be plotted
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format, inc)
 
     width = .55
     max_power = res['graphe']['puissanceSouscrite']
 
+    # Create the graph
     fig = plot.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
     ax = fig.add_subplot(111)
 
     mpl.rcParams.update({'font.size': 10})
 
+    # Draw the graph
     plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
     plot.ylabel(ylegend)
@@ -68,6 +96,9 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     plot.xlim([-width, len(x_values)])
     plot.title(title)
 
+    # If we know the maximum power level that can be used by the user,
+    # set the Y limit to that value. This way, the user will easily see
+    # if they are close to their limit.
     if max_power > 0:
         plot.ylim([0, max_power])
 
@@ -92,50 +123,62 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     return plot
 
 def generate_graph_hours(res):
+    """Generate and save the hourly energy consumption graph.
+    """
     plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", 'hours', "%H:%M", "kW", 0.5)
     plot.savefig(OUTPUT_DIR + "/linky_hours.png")
 
 def generate_graph_days(res):
+    """Generate and save the daily energy consumption graph.
+    """
     plot = generate_graph_from_data(res, "Consommation d'électricité par jour", 'days', "%d %b", "kWh")
     plot.savefig(OUTPUT_DIR + "/linky_days.png")
 
 def generate_graph_months(res):
+    """Generate and save the monthly energy consumption graph.
+    """
     plot = generate_graph_from_data(res, "Consommation d'électricité par mois",'months', "%b", "kWh")
     plot.savefig(OUTPUT_DIR + "/linky_months.png")
 
 def generate_graph_years(res):
+    """Generate and save the yearly energy consumption graph.
+    """
     plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
     plot.savefig(OUTPUT_DIR + "/linky_years.png")
 
 def dtostr(date):
     return date.strftime("%d/%m/%Y")
 
-try:
+def main():
     today = datetime.date.today()
 
-    print("logging in as " + username + "...")
-    token = linky.login(username, password)
-    print("logged in successfully!")
+    try:
+        print("logging in as " + username + "...")
+        token = linky.login(username, password)
+        print("logged in successfully!")
 
-    print("retreiving data...")
-    res_year = linky.get_data_per_year(token)
+        print("retreiving data...")
+        res_year = linky.get_data_per_year(token)
 
-    # 6 months ago - today
-    res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
+        # 6 months ago - today
+        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
 
-    # One month ago - today
-    res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today))
+        # One month ago - today
+        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today))
 
-    # Yesterday - today
-    res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
-    print("got data!")
+        # Yesterday - today
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
+        print("got data!")
 
-    print("generating graphs...")
-    generate_graph_months(res_month)
-    generate_graph_years(res_year)
-    generate_graph_days(res_day)
-    generate_graph_hours(res_hour)
-    print("successfully generated graphs!")
+        print("generating graphs...")
+        generate_graph_months(res_month)
+        generate_graph_years(res_year)
+        generate_graph_days(res_day)
+        generate_graph_hours(res_hour)
+        print("successfully generated graphs!")
 
-except linky.LinkyLoginException as e:
-    print(e)
+    except linky.LinkyLoginException as e:
+        print(e)
+
+if __name__ == "__main__":
+    main()
