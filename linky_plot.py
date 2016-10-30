@@ -43,7 +43,7 @@ def generate_x_axis(res, time_delta_unit, time_format):
 
     return x_values
 
-def generate_graph_from_data(res, time_delta_unit, time_format, rotate_xlabels = False):
+def generate_graph_from_data(res, time_delta_unit, time_format, ylegend):
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format)
 
@@ -57,25 +57,30 @@ def generate_graph_from_data(res, time_delta_unit, time_format, rotate_xlabels =
 
     plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
-    plot.ylabel("kWh")
+    plot.ylabel(ylegend)
     plot.grid(True)
-    plot.xlim([-width, len(x_values) + width])
+    plot.xlim([-width, len(x_values)])
 
-    if rotate_xlabels:
+    # If there are too many elements on the X axis, make it more compact
+    if len(x_values) > 20:
+        # Rotate labels
         fig.autofmt_xdate()
+        for label in ax.xaxis.get_ticklabels()[::2]:
+            # Hide every other label
+            label.set_visible(False)
 
     return plot
 
 def generate_graph_days(res):
-    plot = generate_graph_from_data(res, 'days', "%d %b", True)
+    plot = generate_graph_from_data(res, 'days', "%d %b", "kWh")
     plot.savefig(output_dir + "/linky_days.png")
 
 def generate_graph_months(res):
-    plot = generate_graph_from_data(res, 'months', "%b")
+    plot = generate_graph_from_data(res, 'months', "%b", "kWh")
     plot.savefig(output_dir + "/linky_months.png")
 
 def generate_graph_years(res):
-    plot = generate_graph_from_data(res, 'years', "%Y")
+    plot = generate_graph_from_data(res, 'years', "%Y", "kWh")
     plot.savefig(output_dir + "/linky_years.png")
 
 try:
