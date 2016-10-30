@@ -44,7 +44,7 @@ def generate_x_axis(res, time_delta_unit, time_format):
 
     return x_values
 
-def generate_graph_from_data(res, time_delta_unit, time_format, ylegend):
+def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend):
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format)
 
@@ -64,6 +64,7 @@ def generate_graph_from_data(res, time_delta_unit, time_format, ylegend):
     plot.ylabel(ylegend)
     plot.grid(True)
     plot.xlim([-width, len(x_values)])
+    plot.title(title)
 
     # If there are too many elements on the X axis, make it more compact
     if len(x_values) > 20:
@@ -76,15 +77,15 @@ def generate_graph_from_data(res, time_delta_unit, time_format, ylegend):
     return plot
 
 def generate_graph_days(res):
-    plot = generate_graph_from_data(res, 'days', "%d %b", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par jour", 'days', "%d %b", "kWh")
     plot.savefig(output_dir + "/linky_days.png")
 
 def generate_graph_months(res):
-    plot = generate_graph_from_data(res, 'months', "%b", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par mois",'months', "%b", "kWh")
     plot.savefig(output_dir + "/linky_months.png")
 
 def generate_graph_years(res):
-    plot = generate_graph_from_data(res, 'years', "%Y", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
     plot.savefig(output_dir + "/linky_years.png")
 
 try:
