@@ -16,9 +16,12 @@ output_dir = 'out'
 def generate_y_axis(res):
     y_values = []
 
-    for datapoint in res['graphe']['data']:
-        ordre = datapoint['ordre']
+    for ordre, datapoint in enumerate(res['graphe']['data']):
         value = datapoint['valeur']
+
+        if value < 0:
+            value = 0
+
         y_values.insert(ordre, value)
 
     return y_values
@@ -33,10 +36,9 @@ def generate_x_axis(res, time_delta_unit, time_format):
     kwargs[time_delta_unit] = res['graphe']['decalage']
     start_date = start_date_queried - relativedelta(**kwargs)
 
-    for datapoint in res['graphe']['data']:
-        ordre = datapoint['ordre']
+    for ordre, datapoint in enumerate(res['graphe']['data']):
         kwargs = {}
-        kwargs[time_delta_unit] = ordre-1
+        kwargs[time_delta_unit] = ordre
         x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
     return x_values
@@ -44,7 +46,7 @@ def generate_x_axis(res, time_delta_unit, time_format):
 def generate_graph_from_data(res, time_delta_unit, time_format):
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format)
-
+    
     width = .55
 
     graph = plot.figure()
@@ -53,11 +55,10 @@ def generate_graph_from_data(res, time_delta_unit, time_format):
     plot.bar(ind, y_values, width=width, color='k')
     plot.xticks(ind + width / 2, x_values)
 
-    graph.autofmt_xdate()
     return plot
 
 def generate_graph_months():
-    plot = generate_graph_from_data(res, 'months', "%b %Y")
+    plot = generate_graph_from_data(res, 'months', "%b")
     plot.savefig(output_dir + "/linky_months.png")
 
 try:
