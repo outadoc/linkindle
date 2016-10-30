@@ -53,7 +53,11 @@ def generate_graph_from_data(res, time_delta_unit, time_format):
     plot.xticks(ind + width / 2, x_values)
 
     graph.autofmt_xdate()
-    plot.savefig(output_dir + "/linky_" + time_delta_unit + ".png")
+    return plot
+
+def generate_graph_months():
+    plot = generate_graph_from_data(res, 'months', "%b %Y")
+    plot.savefig(output_dir + "/linky_months.png")
 
 try:
     print("logging in as " + username + "...")
@@ -61,7 +65,7 @@ try:
     print("logged in successfully")
 
     res = linky.get_data_month(token, '01/05/2016', '30/10/2016')
-    generate_graph_from_data(res, 'months', "%b %Y")
+    generate_graph_months()
 
 except linky.LinkyLoginException as e:
     print(e)
