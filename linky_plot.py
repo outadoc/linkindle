@@ -12,7 +12,11 @@ import matplotlib as mpl
 username = os.environ['LINKY_USERNAME']
 password = os.environ['LINKY_PASSWORD']
 
-output_dir = 'out'
+OUTPUT_DIR = 'out'
+
+GRAPH_WIDTH_IN = 4.8
+GRAPH_HEIGHT_IN = 3.6
+GRAPH_DPI = 167
 
 def generate_y_axis(res):
     y_values = []
@@ -51,7 +55,7 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     width = .55
     max_power = res['graphe']['puissanceSouscrite']
 
-    fig = plot.figure(num=None, figsize=(4.8, 3.6), dpi=166.6666, facecolor='w', edgecolor='k')
+    fig = plot.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
     ax = fig.add_subplot(111)
 
@@ -89,19 +93,19 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
 
 def generate_graph_hours(res):
     plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", 'hours', "%H:%M", "kW", 0.5)
-    plot.savefig(output_dir + "/linky_hours.png")
+    plot.savefig(OUTPUT_DIR + "/linky_hours.png")
 
 def generate_graph_days(res):
     plot = generate_graph_from_data(res, "Consommation d'électricité par jour", 'days', "%d %b", "kWh")
-    plot.savefig(output_dir + "/linky_days.png")
+    plot.savefig(OUTPUT_DIR + "/linky_days.png")
 
 def generate_graph_months(res):
     plot = generate_graph_from_data(res, "Consommation d'électricité par mois",'months', "%b", "kWh")
-    plot.savefig(output_dir + "/linky_months.png")
+    plot.savefig(OUTPUT_DIR + "/linky_months.png")
 
 def generate_graph_years(res):
     plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
-    plot.savefig(output_dir + "/linky_years.png")
+    plot.savefig(OUTPUT_DIR + "/linky_years.png")
 
 try:
     print("logging in as " + username + "...")
