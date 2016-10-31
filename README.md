@@ -24,6 +24,7 @@ Here's what it looks like:
 ## Requirements
 This script requires the use of Python 3 with the following dependencies:
 
+- numpy
 - dateutil
 - matplotlib
 - requests
