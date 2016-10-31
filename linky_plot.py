@@ -13,17 +13,18 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import linky
 import os
 import numpy as np
 import datetime
 from dateutil.relativedelta import relativedelta
-from matplotlib import pyplot as plot
 import matplotlib as mpl
+mpl.use('Agg')
+from matplotlib import pyplot as plot
 
 username = os.environ['LINKY_USERNAME']
 password = os.environ['LINKY_PASSWORD']
