@@ -90,7 +90,6 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
         The amount by which the X axis will be increased with every step.
         See time_delta_unit.
     """
-
     # Generate the values to be plotted
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format, inc)
@@ -180,11 +179,11 @@ def main():
         # 6 months ago - today
         res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
 
-        # One month ago - today
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today))
+        # One month ago - yesterday
+        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=2)), dtostr(today))
         print("got data!")
 
         print("generating graphs...")
