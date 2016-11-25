@@ -142,25 +142,25 @@ def generate_graph_hours(res):
     """Generate and save the hourly energy consumption graph.
     """
     plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", 'hours', "%H:%M", "kW", 0.5)
-    plot.savefig(OUTPUT_DIR + "/linky_hours.png")
+    plot.savefig(OUTPUT_DIR + "/linky_hours.png", dpi=GRAPH_DPI)
 
 def generate_graph_days(res):
     """Generate and save the daily energy consumption graph.
     """
     plot = generate_graph_from_data(res, "Consommation d'électricité par jour", 'days', "%d %b", "kWh")
-    plot.savefig(OUTPUT_DIR + "/linky_days.png")
+    plot.savefig(OUTPUT_DIR + "/linky_days.png", dpi=GRAPH_DPI)
 
 def generate_graph_months(res):
     """Generate and save the monthly energy consumption graph.
     """
     plot = generate_graph_from_data(res, "Consommation d'électricité par mois",'months', "%b", "kWh")
-    plot.savefig(OUTPUT_DIR + "/linky_months.png")
+    plot.savefig(OUTPUT_DIR + "/linky_months.png", dpi=GRAPH_DPI)
 
 def generate_graph_years(res):
     """Generate and save the yearly energy consumption graph.
     """
     plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
-    plot.savefig(OUTPUT_DIR + "/linky_years.png")
+    plot.savefig(OUTPUT_DIR + "/linky_years.png", dpi=GRAPH_DPI)
 
 def dtostr(date):
     return date.strftime("%d/%m/%Y")
@@ -183,7 +183,7 @@ def main():
         res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=2)), dtostr(today))
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
         print("got data!")
 
         print("generating graphs...")
