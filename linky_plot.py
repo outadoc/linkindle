@@ -183,7 +183,7 @@ def main():
         res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=2)), dtostr(today))
         print("got data!")
 
         print("generating graphs...")
