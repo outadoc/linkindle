@@ -17,17 +17,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import linky
 import os
-import numpy as np
 import datetime
-from dateutil.relativedelta import relativedelta
+
 import matplotlib as mpl
 mpl.use('Agg')
-from matplotlib import pyplot as plot
+from matplotlib import pyplot as plt
+from dateutil.relativedelta import relativedelta
+import numpy as np
 
-username = os.environ['LINKY_USERNAME']
-password = os.environ['LINKY_PASSWORD']
+import linky
+
+USERNAME = os.environ['LINKY_USERNAME']
+PASSWORD = os.environ['LINKY_PASSWORD']
 
 OUTPUT_DIR = 'out'
 
@@ -98,25 +100,30 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     max_power = res['graphe']['puissanceSouscrite']
 
     # Create the graph
-    fig = plot.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
+    fig = plt.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, \
+                     facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
     ax = fig.add_subplot(111)
 
     mpl.rcParams.update({'font.size': 10})
+    mpl.rcParams.update({'font.family': 'serif'})
+    mpl.rcParams.update({'text.usetex': True})
+    mpl.rcParams.update({'text.latex.unicode': True})
 
     # Draw the graph
-    plot.bar(ind, y_values, width=width, color='k')
-    plot.xticks(ind + width / 2, x_values)
-    plot.ylabel(ylegend)
-    plot.grid(True)
-    plot.xlim([-width, len(x_values)])
-    plot.title(title)
+    plt.title(title, y=1.02)
+    plt.grid(True)
+
+    plt.bar(ind, y_values, width=width, color='k')
+    plt.xticks(ind + width / 2, x_values)
+    plt.xlim([-width, len(x_values)])
+    plt.ylabel(ylegend)
 
     # If we know the maximum power level that can be used by the user,
     # set the Y limit to that value. This way, the user will easily see
     # if they are close to their limit.
     if max_power > 0:
-        plot.ylim([0, max_power])
+        plt.ylim([0, max_power])
 
     # If there are too many elements on the X axis, make it more compact
     if len(x_values) > 20:
@@ -133,33 +140,37 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
             ax.xaxis.get_ticklabels()[-1].set_visible(True)
         else:
             # Hide every other label
-            for label in ax.xaxis.get_ticklabels()[::2]:
+            for label in ax.xaxis.get_ticklabels()[(len(x_values)%2)::2]:
                 label.set_visible(False)
 
-    return plot
+    return plt
 
 def generate_graph_hours(res):
     """Generate and save the hourly energy consumption graph.
     """
-    plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", 'hours', "%H:%M", "kW", 0.5)
+    plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", \
+                                    'hours', "%H:%M", "\\textit{puissance} (kW)", 0.5)
     plot.savefig(OUTPUT_DIR + "/linky_hours.png", dpi=GRAPH_DPI)
 
 def generate_graph_days(res):
     """Generate and save the daily energy consumption graph.
     """
-    plot = generate_graph_from_data(res, "Consommation d'électricité par jour", 'days', "%d %b", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par jour", \
+                                    'days', "%d %b", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_days.png", dpi=GRAPH_DPI)
 
 def generate_graph_months(res):
     """Generate and save the monthly energy consumption graph.
     """
-    plot = generate_graph_from_data(res, "Consommation d'électricité par mois",'months', "%b", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par mois", \
+                                    'months', "%b", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_months.png", dpi=GRAPH_DPI)
 
 def generate_graph_years(res):
     """Generate and save the yearly energy consumption graph.
     """
-    plot = generate_graph_from_data(res, "Consommation d'électricité par année",'years', "%Y", "kWh")
+    plot = generate_graph_from_data(res, "Consommation d'électricité par année", \
+                                    'years', "%Y", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_years.png", dpi=GRAPH_DPI)
 
 def dtostr(date):
@@ -169,21 +180,24 @@ def main():
     today = datetime.date.today()
 
     try:
-        print("logging in as " + username + "...")
-        token = linky.login(username, password)
+        print("logging in as " + USERNAME + "...")
+        token = linky.login(USERNAME, PASSWORD)
         print("logged in successfully!")
 
         print("retreiving data...")
         res_year = linky.get_data_per_year(token)
 
         # 6 months ago - today
-        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
+        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), \
+                                             dtostr(today))
 
         # One month ago - yesterday
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), dtostr(today - relativedelta(days=1)))
+        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), \
+                                             dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=2)), dtostr(today))
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), \
+                                           dtostr(today))
         print("got data!")
 
         print("generating graphs...")
@@ -193,8 +207,8 @@ def main():
         generate_graph_hours(res_hour)
         print("successfully generated graphs!")
 
-    except linky.LinkyLoginException as e:
-        print(e)
+    except linky.LinkyLoginException as exc:
+        print(exc)
 
 if __name__ == "__main__":
     main()
