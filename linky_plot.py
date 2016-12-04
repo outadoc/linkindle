@@ -193,7 +193,7 @@ def main():
 
         # One month ago - yesterday
         res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), \
-                                             dtostr(today - relativedelta(days=1)))
+                                         dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
         res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), \
