@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""Generates energy consumption graphs from Enedis (ERDF) consumption data
+collected via their infrastructure.
+"""
 
 # Linkindle - Linky energy consumption curves on a Kindle display.
 # Copyright (C) 2016 Baptiste Candellier
@@ -19,6 +22,8 @@
 
 import os
 import datetime
+import argparse
+import logging
 
 import linky
 
@@ -30,8 +35,6 @@ from matplotlib import pyplot as plt
 
 USERNAME = os.environ['LINKY_USERNAME']
 PASSWORD = os.environ['LINKY_PASSWORD']
-
-OUTPUT_DIR = 'out'
 
 GRAPH_WIDTH_IN = 4.8
 GRAPH_HEIGHT_IN = 3.6
@@ -145,42 +148,49 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
 
     return plt
 
-def generate_graph_hours(res):
+def generate_graph_hours(outdir, res):
     """Generate and save the hourly energy consumption graph."""
     plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", \
                                     'hours', "%H:%M", "\\textit{puissance} (kW)", 0.5)
-    plot.savefig(OUTPUT_DIR + "/linky_hours.png", dpi=GRAPH_DPI)
+    plot.savefig(outdir + "/linky_hours.png", dpi=GRAPH_DPI)
 
-def generate_graph_days(res):
+def generate_graph_days(outdir, res):
     """Generate and save the daily energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par jour", \
                                     'days', "%d %b", "\\textit{énergie} (kWh)")
-    plot.savefig(OUTPUT_DIR + "/linky_days.png", dpi=GRAPH_DPI)
+    plot.savefig(outdir + "/linky_days.png", dpi=GRAPH_DPI)
 
-def generate_graph_months(res):
+def generate_graph_months(outdir, res):
     """Generate and save the monthly energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par mois", \
                                     'months', "%b", "\\textit{énergie} (kWh)")
-    plot.savefig(OUTPUT_DIR + "/linky_months.png", dpi=GRAPH_DPI)
+    plot.savefig(outdir + "/linky_months.png", dpi=GRAPH_DPI)
 
-def generate_graph_years(res):
+def generate_graph_years(outdir, res):
     """Generate and save the yearly energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par année", \
                                     'years', "%Y", "\\textit{énergie} (kWh)")
-    plot.savefig(OUTPUT_DIR + "/linky_years.png", dpi=GRAPH_DPI)
+    plot.savefig(outdir + "/linky_years.png", dpi=GRAPH_DPI)
 
 def dtostr(date):
     return date.strftime("%d/%m/%Y")
 
 def main():
-    today = datetime.date.today()
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-o", "--output-dir", type=str, default="out",
+                        help="the directory in which the graphs will be placed")
+    args = parser.parse_args()
+    outdir = args.output_dir
 
     try:
-        print("logging in as " + USERNAME + "...")
+        logging.info("logging in as " + USERNAME + "...")
         token = linky.login(USERNAME, PASSWORD)
-        print("logged in successfully!")
+        logging.info("logged in successfully!")
 
-        print("retreiving data...")
+        logging.info("retreiving data...")
+        today = datetime.date.today()
         res_year = linky.get_data_per_year(token)
 
         # 6 months ago - today
@@ -194,17 +204,17 @@ def main():
         # Yesterday - today
         res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), \
                                            dtostr(today))
-        print("got data!")
+        logging.info("got data!")
 
-        print("generating graphs...")
-        generate_graph_months(res_month)
-        generate_graph_years(res_year)
-        generate_graph_days(res_day)
-        generate_graph_hours(res_hour)
-        print("successfully generated graphs!")
+        logging.info("generating graphs...")
+        generate_graph_months(outdir, res_month)
+        generate_graph_years(outdir, res_year)
+        generate_graph_days(outdir, res_day)
+        generate_graph_hours(outdir, res_hour)
+        logging.info("successfully generated graphs!")
 
     except linky.LinkyLoginException as exc:
-        print(exc)
+        logging.info(exc)
 
 if __name__ == "__main__":
     main()
