@@ -3,6 +3,9 @@
 export LINKY_USERNAME=""
 export LINKY_PASSWORD=""
 
+OUT_DIR="/var/www/html/linky"
+CURR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 processimgs ()
 {
     mogrify \
@@ -12,8 +15,8 @@ processimgs ()
 	    -define png:bit-depth=8 \
 	    -dither FloydSteinberg \
 	    -remap kindle_colors.gif \
-	    /var/www/html/linky/*.png >> /var/log/linky.log 2>&1
+	    "$OUT_DIR/*.png" >> /var/log/linky.log 2>&1
 }
 
-python3 /home/iot/linkindle/linky_plot.py >> /var/log/linky.log 2>&1 && processimgs
+python3 $CURR_DIR/linky_plot.py -o "$OUT_DIR" >> /var/log/linky.log 2>&1 && processimgs
 

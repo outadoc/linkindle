@@ -24,6 +24,7 @@ import os
 import datetime
 import argparse
 import logging
+import sys
 
 import linky
 
@@ -214,7 +215,8 @@ def main():
         logging.info("successfully generated graphs!")
 
     except linky.LinkyLoginException as exc:
-        logging.info(exc)
+        logging.error(exc)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
