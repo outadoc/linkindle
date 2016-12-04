@@ -96,6 +96,8 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
         The amount by which the X axis will be increased with every step.
         See time_delta_unit.
     """
+    logging.info("generating '%s' graph", title)
+
     # Generate the values to be plotted
     y_values = generate_y_axis(res)
     x_values = generate_x_axis(res, time_delta_unit, time_format, inc)
@@ -186,7 +188,7 @@ def main():
     outdir = args.output_dir
 
     try:
-        logging.info("logging in as " + USERNAME + "...")
+        logging.info("logging in as %s...", USERNAME)
         token = linky.login(USERNAME, PASSWORD)
         logging.info("logged in successfully!")
 
