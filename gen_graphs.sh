@@ -4,7 +4,7 @@ export LINKY_USERNAME=""
 export LINKY_PASSWORD=""
 
 OUT_DIR="/var/www/html/linky"
-CURR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BASEDIR=$(dirname "$0")
 
 processimgs ()
 {
@@ -18,5 +18,5 @@ processimgs ()
 	    "$OUT_DIR/*.png" >> /var/log/linky.log 2>&1
 }
 
-python3 $CURR_DIR/linky_plot.py -o "$OUT_DIR" >> /var/log/linky.log 2>&1 && processimgs
+python3 $BASEDIR/linky_plot.py -o "$OUT_DIR" >> /var/log/linky.log 2>&1 && processimgs
 
