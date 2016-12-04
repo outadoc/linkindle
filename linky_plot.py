@@ -20,13 +20,13 @@
 import os
 import datetime
 
+import linky
+
+import numpy as np
+from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
 mpl.use('Agg')
 from matplotlib import pyplot as plt
-from dateutil.relativedelta import relativedelta
-import numpy as np
-
-import linky
 
 USERNAME = os.environ['LINKY_USERNAME']
 PASSWORD = os.environ['LINKY_PASSWORD']
@@ -66,14 +66,14 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
     start_date = start_date_queried - relativedelta(**kwargs)
 
     # Generate X axis time labels for every data point
-    for ordre, datapoint in enumerate(res['graphe']['data']):
+    for ordre, _ in enumerate(res['graphe']['data']):
         kwargs = {}
         kwargs[time_delta_unit] = ordre * inc
         x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
     return x_values
 
-def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, inc = 1):
+def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, inc=1):
     """Generates a graph from the given data.
 
     Parameters
@@ -146,29 +146,25 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     return plt
 
 def generate_graph_hours(res):
-    """Generate and save the hourly energy consumption graph.
-    """
+    """Generate and save the hourly energy consumption graph."""
     plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", \
                                     'hours', "%H:%M", "\\textit{puissance} (kW)", 0.5)
     plot.savefig(OUTPUT_DIR + "/linky_hours.png", dpi=GRAPH_DPI)
 
 def generate_graph_days(res):
-    """Generate and save the daily energy consumption graph.
-    """
+    """Generate and save the daily energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par jour", \
                                     'days', "%d %b", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_days.png", dpi=GRAPH_DPI)
 
 def generate_graph_months(res):
-    """Generate and save the monthly energy consumption graph.
-    """
+    """Generate and save the monthly energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par mois", \
                                     'months', "%b", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_months.png", dpi=GRAPH_DPI)
 
 def generate_graph_years(res):
-    """Generate and save the yearly energy consumption graph.
-    """
+    """Generate and save the yearly energy consumption graph."""
     plot = generate_graph_from_data(res, "Consommation d'électricité par année", \
                                     'years', "%Y", "\\textit{énergie} (kWh)")
     plot.savefig(OUTPUT_DIR + "/linky_years.png", dpi=GRAPH_DPI)
