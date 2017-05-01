@@ -54,19 +54,19 @@ def login(username, password):
     return session
 
 def get_data_per_hour(session, start_date, end_date):
-    """Retreives hourly energy consumption data."""
+    """Retrieves hourly energy consumption data."""
     return _get_data(session, 'urlCdcHeure', start_date, end_date)
 
 def get_data_per_day(session, start_date, end_date):
-    """Retreives daily energy consumption data."""
+    """Retrieves daily energy consumption data."""
     return _get_data(session, 'urlCdcJour', start_date, end_date)
 
 def get_data_per_month(session, start_date, end_date):
-    """Retreives monthly energy consumption data."""
+    """Retrieves monthly energy consumption data."""
     return _get_data(session, 'urlCdcMois', start_date, end_date)
 
 def get_data_per_year(session):
-    """Retreives yearly energy consumption data."""
+    """Retrieves yearly energy consumption data."""
     return _get_data(session, 'urlCdcAn')
 
 def _get_data(session, resource_id, start_date=None, end_date=None):
