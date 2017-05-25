@@ -3,7 +3,7 @@
 export LINKY_USERNAME=""
 export LINKY_PASSWORD=""
 
-OUT_DIR="/var/www/html/linky"
+OUT_DIR="/var/www/linky"
 BASEDIR=$(dirname "$0")
 
 processimgs ()
@@ -14,7 +14,7 @@ processimgs ()
 	    -define png:color-type=0 \
 	    -define png:bit-depth=8 \
 	    -dither FloydSteinberg \
-	    -remap kindle_colors.gif \
+	    -remap $BASEDIR/kindle_colors.gif \
 	    "$OUT_DIR/*.png" >> /var/log/linky.log 2>&1
 }
 

@@ -25,6 +25,7 @@ import datetime
 import argparse
 import logging
 import sys
+import locale
 
 import linky
 
@@ -186,6 +187,11 @@ def main():
                         help="the directory in which the graphs will be placed")
     args = parser.parse_args()
     outdir = args.output_dir
+
+    try:
+        locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
+    except locale.Error as exc:
+        logging.error(exc)
 
     try:
         logging.info("logging in as %s...", USERNAME)
