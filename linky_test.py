@@ -29,5 +29,5 @@ try:
     print("logged in successfully")
     res = linky.get_data_per_day(token, '27/10/2016', '30/10/2016')
     print(res)
-except LinkyLoginException as e:
+except linky.LinkyLoginException as e:
     print(e)

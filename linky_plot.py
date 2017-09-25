@@ -32,6 +32,7 @@ import linky
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
+
 mpl.use('Agg')
 from matplotlib import pyplot as plt
 
@@ -41,6 +42,7 @@ PASSWORD = os.environ['LINKY_PASSWORD']
 GRAPH_WIDTH_IN = 4.8
 GRAPH_HEIGHT_IN = 3.6
 GRAPH_DPI = 167
+
 
 def generate_y_axis(res):
     y_values = []
@@ -57,6 +59,7 @@ def generate_y_axis(res):
         y_values.insert(ordre, value)
 
     return y_values
+
 
 def generate_x_axis(res, time_delta_unit, time_format, inc):
     x_values = []
@@ -77,6 +80,7 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
         x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
     return x_values
+
 
 def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, inc=1):
     """Generates a graph from the given data.
@@ -107,8 +111,7 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     max_power = res['graphe']['puissanceSouscrite']
 
     # Create the graph
-    fig = plt.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, \
-                     facecolor='w', edgecolor='k')
+    fig = plt.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
     ax = fig.add_subplot(111)
 
@@ -147,37 +150,43 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
             ax.xaxis.get_ticklabels()[-1].set_visible(True)
         else:
             # Hide every other label
-            for label in ax.xaxis.get_ticklabels()[(len(x_values)%2)::2]:
+            for label in ax.xaxis.get_ticklabels()[(len(x_values) % 2)::2]:
                 label.set_visible(False)
 
     return plt
 
+
 def generate_graph_hours(outdir, res):
     """Generate and save the hourly energy consumption graph."""
-    plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure", \
+    plot = generate_graph_from_data(res, "Puissance atteinte par demi-heure",
                                     'hours', "%H:%M", "\\textit{puissance} (kW)", 0.5)
     plot.savefig(outdir + "/linky_hours.png", dpi=GRAPH_DPI)
 
+
 def generate_graph_days(outdir, res):
     """Generate and save the daily energy consumption graph."""
-    plot = generate_graph_from_data(res, "Consommation d'électricité par jour", \
+    plot = generate_graph_from_data(res, "Consommation d'électricité par jour",
                                     'days', "%d %b", "\\textit{énergie} (kWh)")
     plot.savefig(outdir + "/linky_days.png", dpi=GRAPH_DPI)
 
+
 def generate_graph_months(outdir, res):
     """Generate and save the monthly energy consumption graph."""
-    plot = generate_graph_from_data(res, "Consommation d'électricité par mois", \
+    plot = generate_graph_from_data(res, "Consommation d'électricité par mois",
                                     'months', "%b", "\\textit{énergie} (kWh)")
     plot.savefig(outdir + "/linky_months.png", dpi=GRAPH_DPI)
 
+
 def generate_graph_years(outdir, res):
     """Generate and save the yearly energy consumption graph."""
-    plot = generate_graph_from_data(res, "Consommation d'électricité par année", \
+    plot = generate_graph_from_data(res, "Consommation d'électricité par année",
                                     'years', "%Y", "\\textit{énergie} (kWh)")
     plot.savefig(outdir + "/linky_years.png", dpi=GRAPH_DPI)
 
+
 def dtostr(date):
     return date.strftime("%d/%m/%Y")
+
 
 def main():
     logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
@@ -203,28 +212,29 @@ def main():
         res_year = linky.get_data_per_year(token)
 
         # 6 months ago - today
-        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), \
-                                             dtostr(today))
+        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
 
         # One month ago - yesterday
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)), \
+        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)),
                                          dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), \
-                                           dtostr(today))
-        logging.info("got data!")
+        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
 
+        logging.info("got data!")
         logging.info("generating graphs...")
+
         generate_graph_months(outdir, res_month)
         generate_graph_years(outdir, res_year)
         generate_graph_days(outdir, res_day)
         generate_graph_hours(outdir, res_hour)
+
         logging.info("successfully generated graphs!")
 
     except linky.LinkyLoginException as exc:
         logging.error(exc)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
