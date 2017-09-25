@@ -24,7 +24,10 @@ Here's what it looks like:
 ## Requirements
 This script requires the use of Python 3 with the following dependencies:
 
-    pip3 install numpy dateutil matplotlib requests
+- numpy
+- dateutil
+- matplotlib
+- requests
 
 ## Usage
 Set up environment variables containing your Enedis email and password.
