@@ -69,14 +69,12 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
     start_date_queried = datetime.datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
 
     # Calculate final start date using the "offset" attribute returned by the API
-    kwargs = {}
-    kwargs[time_delta_unit] = res['graphe']['decalage'] * inc
+    kwargs = {time_delta_unit: res['graphe']['decalage'] * inc}
     start_date = start_date_queried - relativedelta(**kwargs)
 
     # Generate X axis time labels for every data point
     for ordre, _ in enumerate(res['graphe']['data']):
-        kwargs = {}
-        kwargs[time_delta_unit] = ordre * inc
+        kwargs = {time_delta_unit: ordre * inc}
         x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
     return x_values
@@ -232,6 +230,10 @@ def main():
         logging.info("successfully generated graphs!")
 
     except linky.LinkyLoginException as exc:
+        logging.error(exc)
+        sys.exit(1)
+
+    except linky.LinkyServiceException as exc:
         logging.error(exc)
         sys.exit(1)
 

@@ -20,6 +20,7 @@
 
 import base64
 import requests
+import html
 
 LOGIN_BASE_URI = 'https://espace-client-connexion.enedis.fr'
 API_BASE_URI = 'https://espace-client-particuliers.enedis.fr/group/espace-particuliers'
@@ -34,6 +35,11 @@ DATA_NOT_AVAILABLE = -2
 
 class LinkyLoginException(Exception):
     """Thrown if an error was encountered while retrieving energy consumption data."""
+    pass
+
+
+class LinkyServiceException(Exception):
+    """Thrown when the webservice threw an exception."""
     pass
 
 
@@ -108,4 +114,9 @@ def _get_data(session, resource_id, start_date=None, end_date=None):
         raise LinkyLoginException("You need to accept the latest Terms of Use. Please manually log into the website, "
                                   "then come back.")
 
-    return req.json()
+    res = req.json()
+
+    if res['etat'] and res['etat']['valeur'] == 'erreur' and res['etat']['erreurText']:
+        raise LinkyServiceException(html.unescape(res['etat']['erreurText']))
+
+    return res
