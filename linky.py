@@ -99,4 +99,8 @@ def _get_data(session, resource_id, start_date=None, end_date=None):
         req = session.post(API_BASE_URI + API_ENDPOINT_DATA, \
                             allow_redirects=False, data=payload, params=params)
 
+    if req.status_code == 200 and req.text is not None and "Conditions d'utilisation" in req.text:
+        raise LinkyLoginException("You need to accept the latest Terms of Use. Please manually log into the website, "
+                                  "then come back.")
+
     return req.json()
