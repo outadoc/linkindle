@@ -29,12 +29,20 @@ This script requires the use of Python 3 with the following dependencies:
 - matplotlib
 - requests
 
+These can usually be installed using your OS's package manager, or `pip`.
+You'll also need a LaTeX distribution. On Ubuntu, you can install `texlive` 
+using `apt`.
+
 ## Usage
 Set up environment variables containing your Enedis email and password.
 
-	export LINKY_USERNAME="jean.dupont@gmal.com"
-	export LINKY_PASSWORD="passwordnaze"
+```bash
+export LINKY_USERNAME="jean.dupont@gmal.com"
+export LINKY_PASSWORD="passwordnaze"
+```
 
 Then, just start linky_plot.py to generate the graphs.
 
-	python3 linky_plot.py -o <output directory>
+```bash
+python3 linky_plot.py -o <output directory>
+```
