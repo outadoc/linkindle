@@ -1,4 +1,4 @@
-# Linindle
+# Linkindle
 
 ## What is this?
 I wanted a way to display my energetic consumption on my wall, like on a weather station. I looked into different display solutions, and it turns out the nicest and easiest seems to be hacking a Kindle into displaying images refreshed periodically.
@@ -41,7 +41,7 @@ export LINKY_USERNAME="jean.dupont@gmal.com"
 export LINKY_PASSWORD="passwordnaze"
 ```
 
-Then, just start linky_plot.py to generate the graphs.
+Then, just start `linky_plot.py` to generate the graphs.
 
 ```bash
 python3 linky_plot.py -o <output directory>
