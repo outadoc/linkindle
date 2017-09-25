@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """Generates energy consumption graphs from Enedis (ERDF) consumption data
 collected via their infrastructure.
