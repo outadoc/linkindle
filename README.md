@@ -24,10 +24,7 @@ Here's what it looks like:
 ## Requirements
 This script requires the use of Python 3 with the following dependencies:
 
-- numpy
-- dateutil
-- matplotlib
-- requests
+    pip3 install numpy dateutil matplotlib requests
 
 ## Usage
 Set up environment variables containing your Enedis email and password.
@@ -37,4 +34,4 @@ Set up environment variables containing your Enedis email and password.
 
 Then, just start linky_plot.py to generate the graphs.
 
-	python3 linky_plot.py
+	python3 linky_plot.py -o <output directory>
