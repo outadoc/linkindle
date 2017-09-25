@@ -26,7 +26,7 @@ API_BASE_URI = 'https://espace-client-particuliers.enedis.fr/group/espace-partic
 
 API_ENDPOINT_LOGIN = '/auth/UI/Login'
 API_ENDPOINT_HOME = '/home'
-API_ENDPOINT_DATA = '/jeconsultetelechargemesdonneesdeconsommation'
+API_ENDPOINT_DATA = '/suivi-de-consommation'
 
 DATA_NOT_REQUESTED = -1
 DATA_NOT_AVAILABLE = -2
@@ -70,7 +70,7 @@ def get_data_per_year(session):
     return _get_data(session, 'urlCdcAn')
 
 def _get_data(session, resource_id, start_date=None, end_date=None):
-    iden = 'lincspartdisplaycdc_WAR_lincspartcdcportlet_INSTANCE_partlincspartcdcportlet'
+    iden = 'lincspartdisplaycdc_WAR_lincspartcdcportlet'
 
     # We send the session token so that the server knows who we are
     payload = {
