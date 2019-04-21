@@ -3,7 +3,7 @@
 """Retrieves energy consumption data from your Enedis (ERDF) account."""
 
 # Linkindle - Linky energy consumption curves on a Kindle display.
-# Copyright (C) 2016 Baptiste Candellier
+# Copyright (C) 2016-2019 Baptiste Candellier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import base64
-import requests
 import html
+import requests
 
 LOGIN_BASE_URI = 'https://espace-client-connexion.enedis.fr'
 API_BASE_URI = 'https://espace-client-particuliers.enedis.fr/group/espace-particuliers'
@@ -31,6 +31,10 @@ API_ENDPOINT_DATA = '/suivi-de-consommation'
 
 DATA_NOT_REQUESTED = -1
 DATA_NOT_AVAILABLE = -2
+
+CUSTOM_HEADERS = {
+    'User-Agent': 'Linkindle/1.0.0'
+}
 
 
 class LinkyLoginException(Exception):
@@ -50,14 +54,18 @@ def login(username, password):
 
     payload = {'IDToken1': username,
                'IDToken2': password,
+               'goto': base64.b64encode('{}/accueil'.format(API_BASE_URI).encode()),
+               'gotoOnFail': '',
                'SunQueryParamsString': base64.b64encode(b'realm=particuliers'),
                'encoded': 'true',
                'gx_charset': 'UTF-8'}
 
-    req = session.post(LOGIN_BASE_URI + API_ENDPOINT_LOGIN, data=payload, allow_redirects=False)
+    session.post(LOGIN_BASE_URI + API_ENDPOINT_LOGIN, data=payload,
+                 headers=CUSTOM_HEADERS, allow_redirects=False)
 
-    if not 'iPlanetDirectoryPro' in session.cookies:
-        raise LinkyLoginException("Login unsuccessful. Check your credentials.")
+    if 'iPlanetDirectoryPro' not in session.cookies:
+        raise LinkyLoginException(
+            "Login unsuccessful. Check your credentials.")
 
     return session
 
@@ -103,12 +111,14 @@ def _get_data(session, resource_id, start_date=None, end_date=None):
         'p_p_col_count': 3
     }
 
-    req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False, data=payload, params=params)
+    req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
+                       headers=CUSTOM_HEADERS, data=payload, params=params)
 
     if 300 <= req.status_code < 400:
         # So... apparently, we may need to do that once again if we hit a 302
         # ¯\_(ツ)_/¯
-        req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False, data=payload, params=params)
+        req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
+                           headers=CUSTOM_HEADERS, data=payload, params=params)
 
     if req.status_code == 200 and req.text is not None and "Conditions d'utilisation" in req.text:
         raise LinkyLoginException("You need to accept the latest Terms of Use. Please manually log into the website, "
