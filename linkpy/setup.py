@@ -12,7 +12,7 @@ setup(
     version="1.0",
     packages=['linkpy'],
 
-    install_requires=['requests', 'dateutil', 'json'],
+    install_requires=['requests'],
 
     author="Baptiste Candellier",
     author_email="outadoc@gmail.com",
