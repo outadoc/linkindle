@@ -1,4 +1,7 @@
 # Linkpy - Access your Linky data via Python
+
+[![PyPI version](https://badge.fury.io/py/linkpy.svg)](https://badge.fury.io/py/linkpy)
+
 ## What is this?
 This Python 3 library allows you to retrieve your Linky power consumption data
 without any hardware, just a connection to your Enedis account.
