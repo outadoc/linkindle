@@ -17,17 +17,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import linky
 import os
+from . import login, get_data_per_day, LinkyLoginException
 
-username = os.environ['LINKY_USERNAME']
-password = os.environ['LINKY_PASSWORD']
 
-try:
-    print("logging in as " + username + "...")
-    token = linky.login(username, password)
-    print("logged in successfully")
-    res = linky.get_data_per_day(token, '27/10/2016', '30/10/2016')
-    print(res)
-except linky.LinkyLoginException as e:
-    print(e)
+def test():
+    """Runs a quick test, logging into the Enedis website and getting some data."""
+    username = os.environ['LINKY_USERNAME']
+    password = os.environ['LINKY_PASSWORD']
+
+    try:
+        print("logging in as " + username + "...")
+        token = login(username, password)
+        print("logged in successfully")
+        res = get_data_per_day(token, '27/10/2016', '30/10/2016')
+        print(res)
+    except LinkyLoginException as ex:
+        print(ex)
+
+
+if __name__ == "__main__":
+    test()

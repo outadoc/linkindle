@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """Retrieves energy consumption data from your Enedis (ERDF) account."""
 
-# Linkindle - Linky energy consumption curves on a Kindle display.
+# Linkpy - Fetch Linky energy consumption curves from an Enedis account.
 # Copyright (C) 2016-2019 Baptiste Candellier
 #
 # This program is free software: you can redistribute it and/or modify
