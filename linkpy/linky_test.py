@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Linkindle - Linky energy consumption curves on a Kindle display.
-# Copyright (C) 2016 Baptiste Candellier
+# Copyright (C) 2016-2019 Baptiste Candellier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from . import login, get_data_per_day, LinkyLoginException
+from . import Linky, LinkyLoginException
 
 
 def test():
@@ -26,11 +26,13 @@ def test():
     username = os.environ['LINKY_USERNAME']
     password = os.environ['LINKY_PASSWORD']
 
+    linky = Linky()
+
     try:
         print("logging in as " + username + "...")
-        token = login(username, password)
+        linky.login(username, password)
         print("logged in successfully")
-        res = get_data_per_day(token, '27/10/2016', '30/10/2016')
+        res = linky.get_data_per_day('27/10/2016', '30/10/2016')
         print(res)
     except LinkyLoginException as ex:
         print(ex)

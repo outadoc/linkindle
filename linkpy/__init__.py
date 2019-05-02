@@ -39,94 +39,97 @@ CUSTOM_HEADERS = {
 
 class LinkyLoginException(Exception):
     """Thrown if an error was encountered while retrieving energy consumption data."""
-    pass
 
 
 class LinkyServiceException(Exception):
     """Thrown when the webservice threw an exception."""
-    pass
 
 
-def login(username, password):
-    """Logs the user into the Linky API.
-    """
-    session = requests.Session()
+class Linky:
+    """Handles calls to the Enedis website, allowing to retrieve Linky info."""
 
-    payload = {'IDToken1': username,
-               'IDToken2': password,
-               'goto': base64.b64encode('{}/accueil'.format(API_BASE_URI).encode()),
-               'gotoOnFail': '',
-               'SunQueryParamsString': base64.b64encode(b'realm=particuliers'),
-               'encoded': 'true',
-               'gx_charset': 'UTF-8'}
+    def __init__(self):
+        self.session = None
 
-    session.post(LOGIN_BASE_URI + API_ENDPOINT_LOGIN, data=payload,
-                 headers=CUSTOM_HEADERS, allow_redirects=False)
+    def login(self, username, password):
+        """Logs the user into the Linky API.
+        """
+        session = requests.Session()
 
-    if 'iPlanetDirectoryPro' not in session.cookies:
-        raise LinkyLoginException(
-            "Login unsuccessful. Check your credentials.")
+        payload = {'IDToken1': username,
+                   'IDToken2': password,
+                   'goto': base64.b64encode('{}/accueil'.format(API_BASE_URI).encode()),
+                   'gotoOnFail': '',
+                   'SunQueryParamsString': base64.b64encode(b'realm=particuliers'),
+                   'encoded': 'true',
+                   'gx_charset': 'UTF-8'}
 
-    return session
+        session.post(LOGIN_BASE_URI + API_ENDPOINT_LOGIN, data=payload,
+                     headers=CUSTOM_HEADERS, allow_redirects=False)
 
+        if 'iPlanetDirectoryPro' not in session.cookies:
+            raise LinkyLoginException(
+                "Login unsuccessful. Check your credentials.")
 
-def get_data_per_hour(session, start_date, end_date):
-    """Retrieves hourly energy consumption data."""
-    return _get_data(session, 'urlCdcHeure', start_date, end_date)
+        self.session = session
 
+    def get_data_per_hour(self, start_date, end_date):
+        """Retrieves hourly energy consumption data."""
+        return self._get_data('urlCdcHeure', start_date, end_date)
 
-def get_data_per_day(session, start_date, end_date):
-    """Retrieves daily energy consumption data."""
-    return _get_data(session, 'urlCdcJour', start_date, end_date)
+    def get_data_per_day(self, start_date, end_date):
+        """Retrieves daily energy consumption data."""
+        return self._get_data('urlCdcJour', start_date, end_date)
 
+    def get_data_per_month(self, start_date, end_date):
+        """Retrieves monthly energy consumption data."""
+        return self._get_data('urlCdcMois', start_date, end_date)
 
-def get_data_per_month(session, start_date, end_date):
-    """Retrieves monthly energy consumption data."""
-    return _get_data(session, 'urlCdcMois', start_date, end_date)
+    def get_data_per_year(self):
+        """Retrieves yearly energy consumption data."""
+        return self._get_data('urlCdcAn')
 
+    def _get_data(self, resource_id, start_date=None, end_date=None):
+        req_part = 'lincspartdisplaycdc_WAR_lincspartcdcportlet'
 
-def get_data_per_year(session):
-    """Retrieves yearly energy consumption data."""
-    return _get_data(session, 'urlCdcAn')
+        # We send the session token so that the server knows who we are
+        payload = {
+            '_' + req_part + '_dateDebut': start_date,
+            '_' + req_part + '_dateFin': end_date
+        }
 
+        params = {
+            'p_p_id': req_part,
+            'p_p_lifecycle': 2,
+            'p_p_state': 'normal',
+            'p_p_mode': 'view',
+            'p_p_resource_id': resource_id,
+            'p_p_cacheability': 'cacheLevelPage',
+            'p_p_col_id': 'column-1',
+            'p_p_col_pos': 1,
+            'p_p_col_count': 3
+        }
 
-def _get_data(session, resource_id, start_date=None, end_date=None):
-    req_part = 'lincspartdisplaycdc_WAR_lincspartcdcportlet'
+        req = self.session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
+                                headers=CUSTOM_HEADERS, data=payload, params=params)
 
-    # We send the session token so that the server knows who we are
-    payload = {
-        '_' + req_part + '_dateDebut': start_date,
-        '_' + req_part + '_dateFin': end_date
-    }
+        if 300 <= req.status_code < 400:
+            # So... apparently, we may need to do that once again if we hit a 302
+            # ¯\_(ツ)_/¯
+            req = self.session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
+                                    headers=CUSTOM_HEADERS, data=payload, params=params)
 
-    params = {
-        'p_p_id': req_part,
-        'p_p_lifecycle': 2,
-        'p_p_state': 'normal',
-        'p_p_mode': 'view',
-        'p_p_resource_id': resource_id,
-        'p_p_cacheability': 'cacheLevelPage',
-        'p_p_col_id': 'column-1',
-        'p_p_col_pos': 1,
-        'p_p_col_count': 3
-    }
+        if req.status_code == 200 \
+                and req.text is not None \
+                and "Conditions d'utilisation" in req.text:
+            raise LinkyLoginException("You need to accept the latest Terms of Use. "
+                                      "Please manually log into the website, "
+                                      "then come back.")
 
-    req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
-                       headers=CUSTOM_HEADERS, data=payload, params=params)
+        res = req.json()
 
-    if 300 <= req.status_code < 400:
-        # So... apparently, we may need to do that once again if we hit a 302
-        # ¯\_(ツ)_/¯
-        req = session.post(API_BASE_URI + API_ENDPOINT_DATA, allow_redirects=False,
-                           headers=CUSTOM_HEADERS, data=payload, params=params)
+        if res['etat'] and res['etat']['valeur'] == 'erreur' and res['etat']['erreurText']:
+            raise LinkyServiceException(
+                html.unescape(res['etat']['erreurText']))
 
-    if req.status_code == 200 and req.text is not None and "Conditions d'utilisation" in req.text:
-        raise LinkyLoginException("You need to accept the latest Terms of Use. Please manually log into the website, "
-                                  "then come back.")
-
-    res = req.json()
-
-    if res['etat'] and res['etat']['valeur'] == 'erreur' and res['etat']['erreurText']:
-        raise LinkyServiceException(html.unescape(res['etat']['erreurText']))
-
-    return res
+        return res

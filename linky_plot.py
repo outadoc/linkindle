@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from matplotlib import pyplot as plt
-"""Generates energy consumption graphs from Enedis (ERDF) consumption data
-collected via their infrastructure.
-"""
 
 # Linkindle - Linky energy consumption curves on a Kindle display.
-# Copyright (C) 2016 Baptiste Candellier
+# Copyright (C) 2016-2019 Baptiste Candellier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +17,10 @@ collected via their infrastructure.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Generates energy consumption graphs from Enedis (ERDF) consumption data
+collected via their infrastructure.
+"""
+
 import os
 import datetime
 import argparse
@@ -28,10 +28,11 @@ import logging
 import sys
 import locale
 
+from matplotlib import pyplot as plt
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
-import linkpy as linky
+from linkpy import Linky, LinkyLoginException, LinkyServiceException
 
 mpl.use('Agg')
 
@@ -197,6 +198,8 @@ def main():
     args = parser.parse_args()
     outdir = args.output_dir
 
+    linky = Linky()
+
     try:
         locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
     except locale.Error as exc:
@@ -204,24 +207,24 @@ def main():
 
     try:
         logging.info("logging in as %s...", USERNAME)
-        token = linky.login(USERNAME, PASSWORD)
+        linky.login(USERNAME, PASSWORD)
         logging.info("logged in successfully!")
 
         logging.info("retreiving data...")
         today = datetime.date.today()
-        res_year = linky.get_data_per_year(token)
+        res_year = linky.get_data_per_year()
 
         # 6 months ago - today
-        res_month = linky.get_data_per_month(token, dtostr(
+        res_month = linky.get_data_per_month(dtostr(
             today - relativedelta(months=6)), dtostr(today))
 
         # One month ago - yesterday
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)),
+        res_day = linky.get_data_per_day(dtostr(today - relativedelta(days=1, months=1)),
                                          dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(
-            today - relativedelta(days=1)), dtostr(today))
+        res_hour = linky.get_data_per_hour(
+            dtostr(today - relativedelta(days=1)), dtostr(today))
 
         logging.info("got data!")
         logging.info("generating graphs...")
@@ -233,11 +236,11 @@ def main():
 
         logging.info("successfully generated graphs!")
 
-    except linky.LinkyLoginException as exc:
+    except LinkyLoginException as exc:
         logging.error(exc)
         sys.exit(1)
 
-    except linky.LinkyServiceException as exc:
+    except LinkyServiceException as exc:
         logging.error(exc)
         sys.exit(1)
 

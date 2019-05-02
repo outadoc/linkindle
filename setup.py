@@ -4,14 +4,15 @@ from setuptools import setup, find_packages
 
 setup(
     name="linkpy",
-    version="0.5",
+    version="1.0",
     packages=['linkpy'],
 
     install_requires=['requests', 'dateutil', 'json'],
 
     author="Baptiste Candellier",
     author_email="outadoc@gmail.com",
-    description="This module allows you to retrieve your Linky consumption data from your Enedis account.",
+    description="This module allows you to retrieve your Linky consumption data "
+                "from your Enedis account.",
     license="GPLv3+",
     keywords="linky enedis edf erdf pylinky linkindle energy meter",
     url="https://github.com/outadoc/linkindle",
