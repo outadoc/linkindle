@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Generates energy consumption graphs from Enedis (ERDF) consumption data
-collected via their infrastructure.
-"""
 
 # Linkindle - Linky energy consumption curves on a Kindle display.
-# Copyright (C) 2016 Baptiste Candellier
+# Copyright (C) 2016-2019 Baptiste Candellier
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +17,10 @@ collected via their infrastructure.
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Generates energy consumption graphs from Enedis (ERDF) consumption data
+collected via their infrastructure.
+"""
+
 import os
 import datetime
 import argparse
@@ -27,14 +28,13 @@ import logging
 import sys
 import locale
 
-import linky
-
+from matplotlib import pyplot as plt
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
+from linkpy.linkpy import Linky, LinkyLoginException, LinkyServiceException
 
 mpl.use('Agg')
-from matplotlib import pyplot as plt
 
 USERNAME = os.environ['LINKY_USERNAME']
 PASSWORD = os.environ['LINKY_PASSWORD']
@@ -66,7 +66,8 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
 
     # Extract start date and parse it
     start_date_queried_str = res['graphe']['periode']['dateDebut']
-    start_date_queried = datetime.datetime.strptime(start_date_queried_str, "%d/%m/%Y").date()
+    start_date_queried = datetime.datetime.strptime(
+        start_date_queried_str, "%d/%m/%Y").date()
 
     # Calculate final start date using the "offset" attribute returned by the API
     kwargs = {time_delta_unit: res['graphe']['decalage'] * inc}
@@ -75,7 +76,8 @@ def generate_x_axis(res, time_delta_unit, time_format, inc):
     # Generate X axis time labels for every data point
     for ordre, _ in enumerate(res['graphe']['data']):
         kwargs = {time_delta_unit: ordre * inc}
-        x_values.insert(ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
+        x_values.insert(
+            ordre, (start_date + relativedelta(**kwargs)).strftime(time_format))
 
     return x_values
 
@@ -109,7 +111,8 @@ def generate_graph_from_data(res, title, time_delta_unit, time_format, ylegend, 
     max_power = res['graphe']['puissanceSouscrite']
 
     # Create the graph
-    fig = plt.figure(num=None, figsize=(GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
+    fig = plt.figure(num=None, figsize=(
+        GRAPH_WIDTH_IN, GRAPH_HEIGHT_IN), dpi=GRAPH_DPI, facecolor='w', edgecolor='k')
     ind = np.arange(len(x_values))
     ax = fig.add_subplot(111)
 
@@ -195,6 +198,8 @@ def main():
     args = parser.parse_args()
     outdir = args.output_dir
 
+    linky = Linky()
+
     try:
         locale.setlocale(locale.LC_ALL, 'fr_FR.utf8')
     except locale.Error as exc:
@@ -202,22 +207,24 @@ def main():
 
     try:
         logging.info("logging in as %s...", USERNAME)
-        token = linky.login(USERNAME, PASSWORD)
+        linky.login(USERNAME, PASSWORD)
         logging.info("logged in successfully!")
 
         logging.info("retreiving data...")
         today = datetime.date.today()
-        res_year = linky.get_data_per_year(token)
+        res_year = linky.get_data_per_year()
 
         # 6 months ago - today
-        res_month = linky.get_data_per_month(token, dtostr(today - relativedelta(months=6)), dtostr(today))
+        res_month = linky.get_data_per_month(dtostr(
+            today - relativedelta(months=6)), dtostr(today))
 
         # One month ago - yesterday
-        res_day = linky.get_data_per_day(token, dtostr(today - relativedelta(days=1, months=1)),
+        res_day = linky.get_data_per_day(dtostr(today - relativedelta(days=1, months=1)),
                                          dtostr(today - relativedelta(days=1)))
 
         # Yesterday - today
-        res_hour = linky.get_data_per_hour(token, dtostr(today - relativedelta(days=1)), dtostr(today))
+        res_hour = linky.get_data_per_hour(
+            dtostr(today - relativedelta(days=1)), dtostr(today))
 
         logging.info("got data!")
         logging.info("generating graphs...")
@@ -229,11 +236,11 @@ def main():
 
         logging.info("successfully generated graphs!")
 
-    except linky.LinkyLoginException as exc:
+    except LinkyLoginException as exc:
         logging.error(exc)
         sys.exit(1)
 
-    except linky.LinkyServiceException as exc:
+    except LinkyServiceException as exc:
         logging.error(exc)
         sys.exit(1)
 

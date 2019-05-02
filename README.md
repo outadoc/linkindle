@@ -1,6 +1,14 @@
 # Linkindle
 
-## What is this?
+## Linkpy library
+[![PyPI version](https://badge.fury.io/py/linkpy.svg)](https://badge.fury.io/py/linkpy)
+
+This repository includes **Linkpy**, an easy-to-use Python package for reading 
+Linky data from the Enedis website.
+
+[Check it out here.](./linkpy/)
+
+## What is this project?
 I wanted a way to display my energetic consumption on my wall, like on a weather station. I looked into different display solutions, and it turns out the nicest and easiest seems to be hacking a Kindle into displaying images refreshed periodically.
 
 I therefore started making a graph generator that would take the data reported by my Linky electricity meter. The data is sent periodically to Enedis, which in turn offers a webpage which displays it - and makes it available through a private JSON API.
