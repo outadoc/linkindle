@@ -32,7 +32,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from dateutil.relativedelta import relativedelta
 import matplotlib as mpl
-from linkpy import Linky, LinkyLoginException, LinkyServiceException
+from linkpy.linkpy import Linky, LinkyLoginException, LinkyServiceException
 
 mpl.use('Agg')
 

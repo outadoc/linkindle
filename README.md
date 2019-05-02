@@ -1,5 +1,11 @@
 # Linkindle
 
+## Linkpy library
+This repository includes **Linkpy**, an easy-to-use Python package for reading 
+Linky data from the Enedis website.
+
+[Check it out here.](./linkpy/)
+
 ## What is this?
 I wanted a way to display my energetic consumption on my wall, like on a weather station. I looked into different display solutions, and it turns out the nicest and easiest seems to be hacking a Kindle into displaying images refreshed periodically.
 
