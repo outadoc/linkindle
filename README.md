@@ -1,5 +1,12 @@
 # Linkindle
 
+## Maintenance notice
+
+This repo has become outdated due to changes in Enedis' website and authentication system.
+I highly recommend that you migrate to an up-to-date and better maintained project such as [guillaumezin/DomoticzLinky](https://github.com/guillaumezin/DomoticzLinky).
+
+The original repo stays here for reference purposes. Thank you. 🙏
+
 ## Linkpy library
 [![PyPI version](https://badge.fury.io/py/linkpy.svg)](https://badge.fury.io/py/linkpy)
 
